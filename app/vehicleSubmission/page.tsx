@@ -25,7 +25,7 @@ const VehicleSubmission: React.FC = () => {
     price: "",
     phone: "",
     city: "",
-    maxImages: 1, // Default maxImages set to 5, can be modified
+    maxImages: 1, // Default maxImages set to 1, can be modified
   });
   const [cities, setCities] = useState(["Lahore", "Karachi"]);
   const [newCity, setNewCity] = useState("");
@@ -127,7 +127,7 @@ const VehicleSubmission: React.FC = () => {
         price: "",
         phone: "",
         city: "",
-        maxImages: 5, // Reset maxImages to default
+        maxImages: 1, // Reset maxImages to default
       });
       setImages([]);
       setThumbnails([]);
