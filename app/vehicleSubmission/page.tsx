@@ -17,7 +17,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import axiosInstance from "@/utils/axiosInstance";
 import withAuth from "../../hoc/withAuth";
-
+import Image from "next/image";
 const VehicleSubmission: React.FC = () => {
   const [form, setForm] = useState({
     model: "",
@@ -248,7 +248,16 @@ const VehicleSubmission: React.FC = () => {
                 },
               }}
             >
-              <img src={src} alt={`Thumbnail ${index}`} width="100%" />
+              {/* <img src={src} alt={`Thumbnail ${index}`} width="100%" /> */}
+
+<Image
+  src={src}
+  alt={`Thumbnail ${index}`}
+  width={500} // Specify width
+  height={300} // Specify height
+  layout="responsive" // Optional for responsiveness
+  objectFit="cover" // Optional for fitting image
+/>
               <Box
                 position="absolute"
                 top={0}
