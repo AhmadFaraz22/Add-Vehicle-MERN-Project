@@ -127,9 +127,12 @@ const VehicleSubmission: React.FC = () => {
       });
       setImages([]);
       setThumbnails([]);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to submit vehicle.");
-      setSuccess("");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "An error occurred.");
+      } else {
+        setError("An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }
