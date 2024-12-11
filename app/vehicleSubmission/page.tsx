@@ -25,7 +25,7 @@ const VehicleSubmission: React.FC = () => {
     price: "",
     phone: "",
     city: "",
-    maxImages: 1, // Default maxImages set to 1, can be modified
+    maxImages: 1, // Default maxImages set to 1
   });
   const [cities, setCities] = useState(["Lahore", "Karachi"]);
   const [newCity, setNewCity] = useState("");
@@ -46,6 +46,7 @@ const VehicleSubmission: React.FC = () => {
     const selectedFiles = Array.from(e.target.files || []);
     const totalFiles = selectedFiles.length + images.length;
 
+    // Prevent uploading more than maxImages
     if (totalFiles > form.maxImages) {
       setError(`You can only upload up to ${form.maxImages} images.`);
       return;
@@ -78,7 +79,7 @@ const VehicleSubmission: React.FC = () => {
   };
 
   const validateModel = (model: string) => {
-    // Ensure model has at least 3 characters, can include alphabets and digits
+    // Ensure model has at least 3 characters
     if (model.length < 3) {
       setError("Car model must have at least 3 characters.");
       return false;
@@ -109,20 +110,20 @@ const VehicleSubmission: React.FC = () => {
     if (!validateForm()) {
       return;
     }
-  
+
     setLoading(true);
     setError("");
     setSuccess("");
-  
+
     try {
       const formData = new FormData();
-  
+
       // Append form fields
       formData.append("model", form.model);
       formData.append("price", form.price);
       formData.append("phone", form.phone);
       formData.append("city", form.city);
-  
+
       // Append images as files
       images.forEach((image) => {
         formData.append("images", image, image.name); // Ensure that the image is appended with its name
@@ -134,7 +135,7 @@ const VehicleSubmission: React.FC = () => {
           "Content-Type": "multipart/form-data", // No need to set this explicitly; the browser will handle it
         },
       });
-  
+
       setSuccess("Vehicle submitted successfully!");
       setForm({
         model: "",
@@ -155,7 +156,6 @@ const VehicleSubmission: React.FC = () => {
       setLoading(false);
     }
   };
-  
 
   const handleAddCity = () => {
     if (newCity.trim() && !cities.includes(newCity)) {
@@ -238,12 +238,12 @@ const VehicleSubmission: React.FC = () => {
         type="number"
         fullWidth
         margin="normal"
-        inputProps={{ min: 1, max: 20 }} // Set the max value to 20
+        inputProps={{ min: 1, max: 10 }} // Set the max value to 10
         value={form.maxImages}
         onChange={(e) =>
           setForm({
             ...form,
-            maxImages: Math.min(20, Math.max(1, Number(e.target.value))), // Ensure value stays within 1-20
+            maxImages: Math.min(10, Math.max(1, Number(e.target.value))), // Ensure value stays within 1-10
           })
         }
       />
