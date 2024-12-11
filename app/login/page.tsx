@@ -37,7 +37,8 @@ export default function Login() {
 
     try {
       const response = await axios.post<{ token: string; refreshToken: string }>(
-        "http://localhost:5000/api/auth/login",
+        // "http://localhost:5000/api/auth/login",
+        "https://add-vehicle-mern-backend-production.up.railway.app/api/auth/login",
         {
           email,
           password,

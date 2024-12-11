@@ -3,7 +3,8 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api", // Backend API URL
+//   baseURL: "http://localhost:5000/api", // Backend API URL
+  baseURL: "https://add-vehicle-mern-backend-production.up.railway.app/api", // Backend API URL
   headers: {
     "Content-Type": "application/json",
   },

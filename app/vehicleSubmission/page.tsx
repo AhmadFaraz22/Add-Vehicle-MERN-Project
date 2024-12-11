@@ -15,28 +15,28 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import axiosInstance from "@/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance"; // Axios instance for API requests
 import withAuth from "../../hoc/withAuth";
 import Image from "next/image";
+
 const VehicleSubmission: React.FC = () => {
   const [form, setForm] = useState({
     model: "",
     price: "",
     phone: "",
     city: "",
-    maxImages: 3,
+    maxImages: 1, // Default maxImages set to 5, can be modified
   });
-  const [cities, setCities] = useState(["Lahore", "Karachi"]); // Dynamic list of cities
-  const [newCity, setNewCity] = useState(""); // New city input
+  const [cities, setCities] = useState(["Lahore", "Karachi"]);
+  const [newCity, setNewCity] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [phoneError, setPhoneError] = useState(""); // Error for phone validation
-  const [loading, setLoading] = useState(false); // Loading state for form submission
+  const [phoneError, setPhoneError] = useState(""); // Phone number validation error
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Clean up object URLs on unmount
     return () => {
       thumbnails.forEach((url) => URL.revokeObjectURL(url));
     };
@@ -44,30 +44,33 @@ const VehicleSubmission: React.FC = () => {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    if (selectedFiles.length + images.length > form.maxImages) {
+    const totalFiles = selectedFiles.length + images.length;
+
+    if (totalFiles > form.maxImages) {
       setError(`You can only upload up to ${form.maxImages} images.`);
       return;
     }
 
-    setError("");
-    const newImages = [...images, ...selectedFiles].slice(0, form.maxImages); // Limit total to maxImages
+    const newImages = [...images, ...selectedFiles];
+    const newThumbnails = newImages.map((file) => URL.createObjectURL(file));
+
     setImages(newImages);
-    setThumbnails(newImages.map((file) => URL.createObjectURL(file))); // Generate URLs for browser
+    setThumbnails(newThumbnails);
+    setError(""); // Clear previous errors
   };
 
   const deleteImage = (index: number) => {
     const updatedImages = images.filter((_, i) => i !== index);
     const updatedThumbnails = thumbnails.filter((_, i) => i !== index);
+
     setImages(updatedImages);
     setThumbnails(updatedThumbnails);
   };
 
   const validatePhone = (phone: string) => {
-    const phoneRegex = /^\+923\d{2}-\d{7}$/; // Regex for +923XX-XXXXXXX format
+    const phoneRegex = /^\+923\d{2}-\d{7}$/;
     if (!phoneRegex.test(phone)) {
-      setPhoneError(
-        "Phone number must be in the format +923XX-XXXXXXX and contain only numbers."
-      );
+      setPhoneError("Phone number must be in the format +923XX-XXXXXXX.");
       return false;
     }
     setPhoneError("");
@@ -76,7 +79,7 @@ const VehicleSubmission: React.FC = () => {
 
   const validateForm = () => {
     if (!form.model || !form.price || !form.phone || !form.city || images.length === 0) {
-      setError("All fields are required and at least one image must be uploaded.");
+      setError("All fields are required, and at least one image must be uploaded.");
       return false;
     }
 
@@ -92,38 +95,39 @@ const VehicleSubmission: React.FC = () => {
     if (!validateForm()) {
       return;
     }
-
+  
     setLoading(true);
-    const formData = new FormData();
-
-    // Append form data fields
-    Object.keys(form).forEach((key) => {
-      formData.append(key, String(form[key as keyof typeof form]));
-    });
-
-    // Append files
-    images.forEach((image) => {
-      formData.append("images", image, image.name);
-    });
-
+    setError("");
+    setSuccess("");
+  
     try {
-      const response = await axiosInstance.post("/vehicle", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data", // Set appropriate headers for FormData
-        },
+      const formData = new FormData();
+  
+      // Append form fields
+      formData.append("model", form.model);
+      formData.append("price", form.price);
+      formData.append("phone", form.phone);
+      formData.append("city", form.city);
+  
+      // Append images as files
+      images.forEach((image) => {
+        formData.append("images", image, image.name); // Ensure that the image is appended with its name
       });
 
+      // Send POST request to the API
+      await axiosInstance.post("/vehicle/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // No need to set this explicitly; the browser will handle it
+        },
+      });
+  
       setSuccess("Vehicle submitted successfully!");
-      setError("");
-      console.log("Response:", response.data);
-
-      // Reset form and state after successful submission
       setForm({
         model: "",
         price: "",
         phone: "",
         city: "",
-        maxImages: 3,
+        maxImages: 5, // Reset maxImages to default
       });
       setImages([]);
       setThumbnails([]);
@@ -137,11 +141,12 @@ const VehicleSubmission: React.FC = () => {
       setLoading(false);
     }
   };
+  
 
   const handleAddCity = () => {
     if (newCity.trim() && !cities.includes(newCity)) {
       setCities([...cities, newCity.trim()]);
-      setNewCity(""); // Clear the input
+      setNewCity(""); // Clear input field
     }
   };
 
@@ -184,10 +189,7 @@ const VehicleSubmission: React.FC = () => {
         value={form.phone}
         error={!!phoneError}
         helperText={phoneError || "Format: +923XX-XXXXXXX"}
-        onChange={(e) => {
-          setForm({ ...form, phone: e.target.value });
-          validatePhone(e.target.value);
-        }}
+        onChange={(e) => setForm({ ...form, phone: e.target.value })}
       />
 
       <TextField
@@ -222,10 +224,13 @@ const VehicleSubmission: React.FC = () => {
         type="number"
         fullWidth
         margin="normal"
-        inputProps={{ min: 1, max: 10 }}
+        inputProps={{ min: 1, max: 20 }} // Set the max value to 20
         value={form.maxImages}
         onChange={(e) =>
-          setForm({ ...form, maxImages: Math.min(10, Number(e.target.value)) }) // Limit to max 10
+          setForm({
+            ...form,
+            maxImages: Math.min(20, Math.max(1, Number(e.target.value))), // Ensure value stays within 1-20
+          })
         }
       />
       <input
@@ -246,21 +251,10 @@ const VehicleSubmission: React.FC = () => {
                 borderRadius: "8px",
                 overflow: "hidden",
                 border: "1px solid #ddd",
-                "&:hover img": {
-                  opacity: 0.7,
-                },
+                "&:hover img": { opacity: 0.7 },
               }}
             >
-              {/* <img src={src} alt={`Thumbnail ${index}`} width="100%" /> */}
-
-<Image
-  src={src}
-  alt={`Thumbnail ${index}`}
-  width={500} // Specify width
-  height={300} // Specify height
-  layout="responsive" // Optional for responsiveness
-  objectFit="cover" // Optional for fitting image
-/>
+              <Image src={src} alt={`Thumbnail ${index}`} width={500} height={300} layout="responsive" objectFit="cover" />
               <Box
                 position="absolute"
                 top={0}
@@ -271,10 +265,7 @@ const VehicleSubmission: React.FC = () => {
                 bgcolor="rgba(0, 0, 0, 0.6)"
                 borderRadius="0 0 0 8px"
               >
-                <IconButton
-                  color="inherit"
-                  onClick={() => window.open(src, "_blank")}
-                >
+                <IconButton color="inherit" onClick={() => window.open(src, "_blank")}>
                   <VisibilityIcon />
                 </IconButton>
                 <IconButton color="inherit" onClick={() => deleteImage(index)}>
@@ -305,6 +296,7 @@ const VehicleSubmission: React.FC = () => {
           </Grid>
         )}
       </Grid>
+
       <Button
         variant="contained"
         color="primary"
