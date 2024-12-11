@@ -164,6 +164,18 @@ const VehicleSubmission: React.FC = () => {
     }
   };
 
+  // Function to handle "Max Images" change and restrict it to 1-10
+  const handleMaxImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+
+    if (value <= 10) {
+      setForm({
+        ...form,
+        maxImages: Math.max(1, value), // Ensure value stays between 1 and 10
+      });
+    }
+  };
+
   return (
     <Box
       p={4}
@@ -240,12 +252,7 @@ const VehicleSubmission: React.FC = () => {
         margin="normal"
         inputProps={{ min: 1, max: 10 }} // Set the max value to 10
         value={form.maxImages}
-        onChange={(e) =>
-          setForm({
-            ...form,
-            maxImages: Math.min(10, Math.max(1, Number(e.target.value))), // Ensure value stays within 1-10
-          })
-        }
+        onChange={handleMaxImagesChange} // Use the new function to restrict input
       />
       <input
         type="file"
