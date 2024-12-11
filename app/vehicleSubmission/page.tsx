@@ -68,7 +68,7 @@ const VehicleSubmission: React.FC = () => {
   };
 
   const validatePhone = (phone: string) => {
-    const phoneRegex = /^\x03\d{2}\d{7}$/;
+    const phoneRegex = /^03\d{9}$/;
     if (!phoneRegex.test(phone)) {
       setPhoneError("Phone number must be in the format 03XXXXXXXXX.");
       return false;
