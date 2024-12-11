@@ -77,7 +77,17 @@ const VehicleSubmission: React.FC = () => {
     return true;
   };
 
+  const validateModel = (model: string) => {
+    // Ensure model has at least 3 characters, can include alphabets and digits
+    if (model.length < 3) {
+      setError("Car model must have at least 3 characters.");
+      return false;
+    }
+    return true;
+  };
+
   const validateForm = () => {
+    // Check if all required fields are filled and valid
     if (!form.model || !form.price || !form.phone || !form.city || images.length === 0) {
       setError("All fields are required, and at least one image must be uploaded.");
       return false;
@@ -87,7 +97,11 @@ const VehicleSubmission: React.FC = () => {
       return false;
     }
 
-    setError("");
+    if (!validateModel(form.model)) {
+      return false;
+    }
+
+    setError(""); // Clear any previous errors
     return true;
   };
 
@@ -188,7 +202,7 @@ const VehicleSubmission: React.FC = () => {
         margin="normal"
         value={form.phone}
         error={!!phoneError}
-        helperText={phoneError || "Format: +923XX-XXXXXXX"}
+        helperText={phoneError || "Format: 03XXXXXXXXX"}
         onChange={(e) => setForm({ ...form, phone: e.target.value })}
       />
 
